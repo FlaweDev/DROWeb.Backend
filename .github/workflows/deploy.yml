@@ -23,7 +23,7 @@ jobs:
         # В реальном CI тут используют автоматические утилиты, для примера поставим штамп времени
         VERSION="1.0.${{ github.run_number }}"
         echo "new_version=$VERSION" >> $GITHUB_OUTPUT
-        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" upm-package/package.json
+        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
 
     # 2. Генерируем код C# с помощью NSwag
     - name: Setup .NET
@@ -37,12 +37,12 @@ jobs:
     - name: Generate API Client
       run: |
         dotnet build DROWeb.WebAPI/DROWeb.WebAPI.csproj -c Release
-        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"upm-package/Runtime/BackendClient.cs" /namespace:GeneratedBackend /jsonLibrary:NewtonsoftJson
+        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/Runtime/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson
 
     # 3. Публикуем UPM-пакет в NPM Реестр (например, Verdaccio или GitHub Packages)
     - name: Publish UPM Package
       run: |
-        cd upm-package
+        cd DROWeb.UnitySDK
         echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
         npm publish --registry=https://npm.pkg.github.com/
 
