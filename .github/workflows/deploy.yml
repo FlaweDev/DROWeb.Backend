@@ -3,6 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   # --- ИНТЕГРАЦИЯ: Собираем Docker-образ и UPM-пакет ---
@@ -45,19 +47,21 @@ jobs:
         npm publish --registry=https://npm.pkg.github.com/
 
     # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+    # - name: log in to docker hub
+    #   uses: docker/login-action@v3
+    #   with:
+    #     username: ${{ secrets.docker_username }}
+    #     password: ${{ secrets.docker_password }}
 
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./MyBackend/Dockerfile
-        push: true
-        tags: your-docker-username/my-backend:${{ github.run_number }}, your-docker-username/my-backend:latest
+    # - name: build and push docker image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     file: ./droweb.webapi/dockerfile
+    #     push: true
+    #     tags: |
+    #       droweb-dev/droweb-backend:${{ github.run_number }}
+    #       droweb-dev/droweb-backend:latest
 
   # --- РАЗВЕРТЫВАНИЕ: Отправляем бэкенд в Kubernetes на ваш сервер ---
   # deploy-to-k8s:
