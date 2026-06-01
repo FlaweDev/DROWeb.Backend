@@ -10,22 +10,31 @@ jobs:
   # --- ИНТЕГРАЦИЯ: Собираем Docker-образ и UPM-пакет ---
   build-and-pack:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     outputs:
       version: ${{ steps.bump_version.outputs.new_version }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 1. Автоматически повышаем версию пакета (чтобы Unity видел апдейт)
-    - name: Bump package version
+    # Динамически вычисляем автора репозитория и версию
+    - name: Bump package version and inject scope
       id: bump_version
       run: |
-        # В реальном CI тут используют автоматические утилиты, для примера поставим штамп времени
+        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         VERSION="1.0.${{ github.run_number }}"
+        
         echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+        
+        # package.json
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
+        sed -i "s/\"name\": \"/\"name\": \"@$OWNER\//g" DROWeb.UnitySDK/package.json
+        
+        echo "Лог измененного package.json для проверки:"
+        cat DROWeb.UnitySDK/package.json
 
-    # 2. Генерируем код C# с помощью NSwag
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -39,7 +48,7 @@ jobs:
         dotnet build DROWeb.WebAPI/DROWeb.WebAPI.csproj -c Release
         dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/Runtime/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson
 
-    # 3. Публикуем UPM-пакет в NPM Реестр (например, Verdaccio или GitHub Packages)
+    # Публикуем UPM-пакет в NPM Реестр
     - name: Publish UPM Package
       run: |
         cd DROWeb.UnitySDK
