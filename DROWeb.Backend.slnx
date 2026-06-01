@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="DROWeb.Application/DROWeb.Application.csproj" />
+    <Project Path="DROWeb.Domain/DROWeb.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="DROWeb.Persistence/DROWeb.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="DROWeb.WebAPI/DROWeb.WebAPI.csproj" />
+  </Folder>
+  <Folder Name="/Tests/" />
+</Solution>
