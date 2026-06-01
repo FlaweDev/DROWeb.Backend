@@ -1,0 +1,79 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # --- ИНТЕГРАЦИЯ: Собираем Docker-образ и UPM-пакет ---
+  build-and-pack:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump_version.outputs.new_version }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 1. Автоматически повышаем версию пакета (чтобы Unity видел апдейт)
+    - name: Bump package version
+      id: bump_version
+      run: |
+        # В реальном CI тут используют автоматические утилиты, для примера поставим штамп времени
+        VERSION="1.0.${{ github.run_number }}"
+        echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" upm-package/package.json
+
+    # 2. Генерируем код C# с помощью NSwag
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore Local Tools
+      run: dotnet tool restore
+
+    - name: Generate API Client
+      run: |
+        dotnet build DROWeb.WebAPI/DROWeb.WebAPI.csproj -c Release
+        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"upm-package/Runtime/BackendClient.cs" /namespace:GeneratedBackend /jsonLibrary:NewtonsoftJson
+
+    # 3. Публикуем UPM-пакет в NPM Реестр (например, Verdaccio или GitHub Packages)
+    - name: Publish UPM Package
+      run: |
+        cd upm-package
+        echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+        npm publish --registry=https://npm.pkg.github.com/
+
+    # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./MyBackend/Dockerfile
+        push: true
+        tags: your-docker-username/my-backend:${{ github.run_number }}, your-docker-username/my-backend:latest
+
+  # --- РАЗВЕРТЫВАНИЕ: Отправляем бэкенд в Kubernetes на ваш сервер ---
+  # deploy-to-k8s:
+  #   needs: build-and-pack
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Setup Kubectl
+  #     uses: azure/k8s-set-context@v3
+  #     with:
+  #       method: kubeconfig
+  #       kubeconfig: ${{ secrets.KUBE_CONFIG }} # Секретный токен доступа к вашему серверу K8s
+
+  #   - name: Deploy to Kubernetes
+  #     run: |
+  #       # Обновляем образ в вашем K8s кластере на свежую версию
+  #       kubectl set image deployment/my-backend-deployment my-backend=your-docker-username/my-backend:${{ github.run_number }}
