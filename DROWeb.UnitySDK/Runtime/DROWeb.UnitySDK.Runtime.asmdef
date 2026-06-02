@@ -1,5 +1,5 @@
 {
-    "name": "DROWeb.UnitySDK",
+    "name": "DROWeb.UnitySDK.Runtime",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

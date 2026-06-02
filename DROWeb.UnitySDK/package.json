@@ -11,8 +11,8 @@
     "package.json.meta",
     "Runtime/DROWeb.UnitySDK.dll",
     "Runtime/DROWeb.UnitySDK.dll.meta",
-    "Runtime/DROWeb.UnitySDK.asmdef",
-    "Runtime/DROWeb.UnitySDK.asmdef.meta",
+    "Runtime/DROWeb.UnitySDK.Runtime.asmdef",
+    "Runtime/DROWeb.UnitySDK.Runtime.asmdef.meta",
     "Runtime.meta"
   ]
 }
