@@ -9,8 +9,10 @@
   "files": [
     "package.json",
     "package.json.meta",
-    "Plugins/DROWeb.UnitySDK.dll",
-    "Plugins/DROWeb.UnitySDK.dll.meta",
-    "Plugins.meta"
+    "Runtime/DROWeb.UnitySDK.dll",
+    "Runtime/DROWeb.UnitySDK.dll.meta",
+    "Runtime/DROWeb.UnitySDK.asmdef",
+    "Runtime/DROWeb.UnitySDK.asmdef.meta",
+    "Runtime.meta"
   ]
 }

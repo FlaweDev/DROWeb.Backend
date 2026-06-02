@@ -8,7 +8,7 @@
 	<DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Plugins\" />
+    <Folder Include="Runtime\" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>
