@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Clients/">
+    <Project Path="DROWeb.UnitySDK/DROWeb.UnitySDK.csproj" Id="80e1d216-c478-40ed-a255-6a795ef57200" />
+  </Folder>
   <Folder Name="/Core/">
     <Project Path="DROWeb.Application/DROWeb.Application.csproj" />
     <Project Path="DROWeb.Domain/DROWeb.Domain.csproj" />

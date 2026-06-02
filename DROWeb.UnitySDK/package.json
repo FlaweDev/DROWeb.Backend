@@ -3,5 +3,10 @@
   "version": "1.0.0",
   "displayName": "DROWeb Server SDK",
   "description": "Автогенерируемый SDK для взаимодействия с бэкендом DROWeb",
-  "dependencies": {}
+  "dependencies": {},
+  "files": [
+    "package.json",
+    "**/*.dll",
+    "**/*.meta"
+  ]
 }

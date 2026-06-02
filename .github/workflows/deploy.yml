@@ -40,11 +40,18 @@ jobs:
 
     - name: Restore Local Tools
       run: dotnet tool restore
-
-    - name: Generate API Client
+      
+    - name: Build DROWeb.WebAPI & UnitySDK
       run: |
         dotnet build DROWeb.WebAPI/DROWeb.WebAPI.csproj -c Release
-        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/Runtime/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson
+        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson
+        dotnet build DROWeb.UnitySDK/DROWeb.UnitySDK.csproj -c Release -o DROWeb.UnitySDK/Plugins/
+
+    - name: Generate UnitySDK metafiles
+      uses: rouvydev/metagen-gha
+      with:
+        seed: 'random-seed'
+        directory: 'DROWeb.UnitySDK'
 
     # Публикуем UPM-пакет в NPM Реестр
     - name: Publish UPM Package
