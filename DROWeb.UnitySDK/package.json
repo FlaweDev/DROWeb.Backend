@@ -6,7 +6,8 @@
   "dependencies": {},
   "files": [
     "package.json",
-    "**/*.dll",
-    "**/*.meta"
+    "package.json.meta",
+    "Plugins/DROWeb.UnitySDK.dll",
+    "Plugins/DROWeb.UnitySDK.dll.meta"
   ]
 }
