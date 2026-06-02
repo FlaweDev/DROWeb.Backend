@@ -23,14 +23,12 @@ jobs:
     - name: Bump package version and inject scope
       id: bump_version
       run: |
-        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         VERSION="1.0.${{ github.run_number }}"
         
         echo "new_version=$VERSION" >> $GITHUB_OUTPUT
         
         # package.json
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
-        sed -i "s/\"name\": \"/\"name\": \"@$OWNER\//g" DROWeb.UnitySDK/package.json
         
         echo "Лог измененного package.json для проверки:"
         cat DROWeb.UnitySDK/package.json
