@@ -48,7 +48,7 @@ jobs:
         dotnet build DROWeb.UnitySDK/DROWeb.UnitySDK.csproj -c Release -o DROWeb.UnitySDK/Plugins/
 
     - name: Generate UnitySDK metafiles
-      uses: rouvydev/metagen-gha
+      uses: rouvydev/metagen-gha@v1.4
       with:
         seed: 'random-seed'
         directory: 'DROWeb.UnitySDK'
