@@ -52,8 +52,8 @@ jobs:
     - name: Publish UPM Package
       run: |
         cd DROWeb.UnitySDK
-        echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
-        npm publish --registry=https://npm.pkg.github.com/
+        echo "//${{ vars.REGISTRY_HOST }}/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" > .npmrc
+        npm publish --registry=https://${{ vars.REGISTRY_HOST }}/
 
     # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
     # - name: log in to docker hub
