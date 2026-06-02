@@ -50,11 +50,8 @@ jobs:
     - name: Publish UPM Package
       run: |
         cd DROWeb.UnitySDK
-        git config --global core.autocrlf false
         echo "//${{ vars.REGISTRY_HOST }}/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" > .npmrc
-        npm pack
-        TGZ_FILE=$(ls *.tgz | head -n 1)
-        npm publish "$TGZ_FILE" --registry=https://${{ vars.REGISTRY_HOST }}/
+        npm publish --registry=https://${{ vars.REGISTRY_HOST }}/
 
     # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
     # - name: log in to docker hub
