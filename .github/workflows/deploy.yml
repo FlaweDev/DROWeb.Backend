@@ -35,9 +35,12 @@ jobs:
           VERSION="$BASE_VERSION-dev"
           DOCKER_ALIAS="dev"
         fi
+
+        OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         
         echo "new_version=$VERSION" >> $GITHUB_OUTPUT
         echo "docker_alias=$DOCKER_ALIAS" >> $GITHUB_OUTPUT
+        echo "owner_lower=$OWNER_LOWER" >> $GITHUB_OUTPUT
         
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
 
@@ -81,8 +84,8 @@ jobs:
         file: ./droweb.webapi/dockerfile
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/droweb-backend:${{ steps.bump_version.outputs.new_version }}
-          ghcr.io/${{ github.repository_owner }}/droweb-backend:${{ steps.bump_version.outputs.docker_alias }}
+          ghcr.io/${{ steps.bump_version.outputs.owner_lower }}/droweb-backend:${{ steps.bump_version.outputs.new_version }}
+          ghcr.io/${{ steps.bump_version.outputs.owner_lower }}/droweb-backend:${{ steps.bump_version.outputs.docker_alias }}
 
   # --- РАЗВЕРТЫВАНИЕ: Отправляем бэкенд в Kubernetes на ваш сервер ---
   # deploy-to-k8s:
