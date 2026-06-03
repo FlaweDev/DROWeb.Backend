@@ -2,9 +2,6 @@
 using DROWeb.Domain;
 using DROWeb.Persistence.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DROWeb.Persistence
 {
