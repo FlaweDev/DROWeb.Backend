@@ -81,7 +81,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./droweb.webapi/dockerfile
+        file: ./DROWeb.WebAPI/Dockerfile
         push: true
         tags: |
           ghcr.io/${{ steps.bump_version.outputs.owner_lower }}/droweb-backend:${{ steps.bump_version.outputs.new_version }}
