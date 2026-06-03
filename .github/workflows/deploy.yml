@@ -1,8 +1,8 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [ "main" ]
+  # push:
+  #  branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -23,14 +23,12 @@ jobs:
     - name: Bump package version and inject scope
       id: bump_version
       run: |
-        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         VERSION="1.0.${{ github.run_number }}"
         
         echo "new_version=$VERSION" >> $GITHUB_OUTPUT
         
         # package.json
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
-        sed -i "s/\"name\": \"/\"name\": \"@$OWNER\//g" DROWeb.UnitySDK/package.json
         
         echo "Лог измененного package.json для проверки:"
         cat DROWeb.UnitySDK/package.json
@@ -42,18 +40,25 @@ jobs:
 
     - name: Restore Local Tools
       run: dotnet tool restore
-
-    - name: Generate API Client
+      
+    - name: Build DROWeb.WebAPI & UnitySDK
       run: |
         dotnet build DROWeb.WebAPI/DROWeb.WebAPI.csproj -c Release
-        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/Runtime/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson
+        dotnet nswag openapi2csclient /input:"DROWeb.WebAPI/obj/openapi/DROWeb.WebAPI.json" /output:"DROWeb.UnitySDK/DROWebApiClient.cs" /namespace:DROWeb.UnitySDK /jsonLibrary:NewtonsoftJson /generateDataAnnotations:false
+        dotnet build DROWeb.UnitySDK/DROWeb.UnitySDK.csproj -c Release -o DROWeb.UnitySDK/Runtime/
+
+    - name: Generate UnitySDK metafiles
+      uses: rouvydev/metagen-gha@v1.4
+      with:
+        seed: 'random-seed'
+        directory: 'DROWeb.UnitySDK'
 
     # Публикуем UPM-пакет в NPM Реестр
     - name: Publish UPM Package
       run: |
         cd DROWeb.UnitySDK
-        echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
-        npm publish --registry=https://npm.pkg.github.com/
+        echo "//${{ vars.REGISTRY_HOST }}/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" > .npmrc
+        npm publish --registry=https://${{ vars.REGISTRY_HOST }}/
 
     # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
     # - name: log in to docker hub

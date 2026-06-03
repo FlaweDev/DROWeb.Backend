@@ -19,6 +19,7 @@ public class CreatePlayerEndpoint : Endpoint<CreatePlayerRequest, CreatePlayerRe
     {
         Post("/api/player/create");
         AllowAnonymous();
+        Description(x => x.WithName("CreatePlayer"));
     }
 
     public override async Task HandleAsync(CreatePlayerRequest req, CancellationToken ct)

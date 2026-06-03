@@ -3,5 +3,16 @@
   "version": "1.0.0",
   "displayName": "DROWeb Server SDK",
   "description": "Автогенерируемый SDK для взаимодействия с бэкендом DROWeb",
-  "dependencies": {}
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "files": [
+    "package.json",
+    "package.json.meta",
+    "Runtime/DROWeb.UnitySDK.dll",
+    "Runtime/DROWeb.UnitySDK.dll.meta",
+    "Runtime/DROWeb.UnitySDK.Runtime.asmdef",
+    "Runtime/DROWeb.UnitySDK.Runtime.asmdef.meta",
+    "Runtime.meta"
+  ]
 }
