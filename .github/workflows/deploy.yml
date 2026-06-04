@@ -114,8 +114,12 @@ jobs:
           ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
           ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.docker_alias }}
 
-    - name: Rollout deployment
-      uses: appleboy/kubectl-action@master
+    - name: Setup Kubernetes Context
+      uses: azure/k8s-set-context@v3
       with:
-        config: ${{ secrets.KUBE_CONFIG }} 
-        command: rollout restart deployment/droweb-backend -n app
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+    - name: Deploy to k3s
+      run: |
+        kubectl set image deployment/droweb-deployment app=ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
