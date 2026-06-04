@@ -2,6 +2,7 @@
 using DROWeb.Persistence;
 using DROWeb.Application;
 using FastEndpoints;
+using DROWeb.Auth;
 
 public class Startup
 {
@@ -16,6 +17,7 @@ public class Startup
 
         services.AddApplication();
         services.AddPersistence(Configuration);
+        services.AddAuth(Configuration);
         services.AddControllers();
 
         services.AddCors(options =>
@@ -73,11 +75,12 @@ public class Startup
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
-        /*app.UseAuthentication();
+        app.UseStaticFiles(); // Статические файлы из wwwroot
+
+        app.UseAuthentication();
         app.UseAuthorization();
-        app.UseApiVersioning();*/
 
-
+        app.UseWebSockets();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapFastEndpoints();

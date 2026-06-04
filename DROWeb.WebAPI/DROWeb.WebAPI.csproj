@@ -11,6 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\index.html" />
+    <Content Remove="wwwroot\js\auth.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\js\auth.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FastEndpoints" Version="8.1.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
@@ -25,10 +35,6 @@
     <ProjectReference Include="..\DROWeb.Application\DROWeb.Application.csproj" />
     <ProjectReference Include="..\DROWeb.Auth\DROWeb.Auth.csproj" />
     <ProjectReference Include="..\DROWeb.Persistence\DROWeb.Persistence.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Endpoints\Players\Create\" />
   </ItemGroup>
 
 </Project>

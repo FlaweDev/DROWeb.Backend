@@ -16,7 +16,7 @@ using (var scope = host.Services.CreateScope())
     var serviceProvider = scope.ServiceProvider;
     try
     {
-        var context = serviceProvider.GetRequiredService<PlayersDbContext>();
+        var context = serviceProvider.GetRequiredService<UsersDbContext>();
         DbInitializer.Initialize(context);
     }
     catch (Exception ex)

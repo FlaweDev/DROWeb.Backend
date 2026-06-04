@@ -1,0 +1,49 @@
+using DROWeb.Application.Interfaces;
+using DROWeb.Domain.Models;
+using FastEndpoints;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+
+namespace DROWeb.WebAPI.Endpoints.Auth.Status;
+
+public class Status : Endpoint<NoRequest, StatusResponse>
+{
+    private readonly IUsersDbContext _dbContext;
+
+    public Status(IUsersDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public override void Configure()
+    {
+        Get("/api/auth/status");
+        AllowAnonymous();
+        Description(x => x.WithName("Status"));
+    }
+
+    public override async Task HandleAsync(NoRequest req, CancellationToken ct)
+    {
+        var isAuthenticated = HttpContext.User?.Identity?.IsAuthenticated ?? false;
+
+        if (!isAuthenticated)
+        {
+            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty), ct);
+            return;
+        }
+
+        var userIdClaim = HttpContext.User.FindFirst("AppUserId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty), ct);
+            return;
+        }
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+        await Send.OkAsync(new StatusResponse(true, user?.Id ?? Guid.Empty, user?.Username ?? string.Empty), ct);
+    }
+}
+
+public record NoRequest;
+public record StatusResponse(bool IsAuthenticated, Guid UserId, string Username);
