@@ -114,11 +114,18 @@ jobs:
           ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
           ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.docker_alias }}
 
+    - name: Decode Kubeconfig
+      id: kubeconfig_decoder
+      run: |
+        echo "decoded_config<<EOF" >> $GITHUB_OUTPUT
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
     - name: Setup Kubernetes Context
       uses: azure/k8s-set-context@v3
       with:
         method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        kubeconfig: ${{ steps.kubeconfig_decoder.outputs.decoded_config }}
 
     - name: Deploy to k3s
       run: |
