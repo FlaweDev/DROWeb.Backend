@@ -4,7 +4,8 @@ using FastEndpoints;
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(webBuilder =>
     {
-        webBuilder.UseStartup<Startup>();
+        webBuilder.UseStartup<Startup>()
+            .UseWebRoot(Path.Combine(AppContext.BaseDirectory, "wwwroot"));
     });
 
 
