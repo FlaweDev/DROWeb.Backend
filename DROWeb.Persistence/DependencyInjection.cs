@@ -8,7 +8,7 @@ namespace DROWeb.Persistence
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddPersistence(this IServiceCollection services, 
+        public static IServiceCollection AddPersistence(this IServiceCollection services,
             IConfiguration config)
         {
             var connectionString = new NpgsqlConnectionStringBuilder
@@ -21,13 +21,13 @@ namespace DROWeb.Persistence
                 Pooling = true
             }.ConnectionString;
 
-            services.AddDbContext<PlayersDbContext>(options =>
+            services.AddDbContext<UsersDbContext>(options =>
             {
                 options.UseNpgsql(connectionString);
             });
 
-            services.AddScoped<IPlayersDbContext>(provider =>
-                provider.GetService<PlayersDbContext>());
+            services.AddScoped<IUsersDbContext>(provider =>
+                provider.GetRequiredService<UsersDbContext>());
 
             return services;
         }

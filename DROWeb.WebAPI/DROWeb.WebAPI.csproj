@@ -23,7 +23,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DROWeb.Application\DROWeb.Application.csproj" />
+    <ProjectReference Include="..\DROWeb.Auth\DROWeb.Auth.csproj" />
     <ProjectReference Include="..\DROWeb.Persistence\DROWeb.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Endpoints\Players\Create\" />
   </ItemGroup>
 
 </Project>

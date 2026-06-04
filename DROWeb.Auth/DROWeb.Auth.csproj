@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DROWeb.Application\DROWeb.Application.csproj" />
+    <ProjectReference Include="..\DROWeb.Domain\DROWeb.Domain.csproj" />
   </ItemGroup>
 
 </Project>
