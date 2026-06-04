@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DROWeb.WebAPI.Endpoints.Auth.Status;
 
-public class Status : Endpoint<NoRequest, StatusResponse>
+public class Status : EndpointWithoutRequest<StatusResponse>
 {
     private readonly IUsersDbContext _dbContext;
 
@@ -22,9 +22,9 @@ public class Status : Endpoint<NoRequest, StatusResponse>
         Description(x => x.WithName("Status"));
     }
 
-    public override async Task HandleAsync(NoRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
-        var isAuthenticated = HttpContext.User?.Identity?.IsAuthenticated ?? false;
+        var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
 
         if (!isAuthenticated)
         {
@@ -32,7 +32,7 @@ public class Status : Endpoint<NoRequest, StatusResponse>
             return;
         }
 
-        var userIdClaim = HttpContext.User.FindFirst("AppUserId");
+        var userIdClaim = User.FindFirst("AppUserId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
             await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty), ct);

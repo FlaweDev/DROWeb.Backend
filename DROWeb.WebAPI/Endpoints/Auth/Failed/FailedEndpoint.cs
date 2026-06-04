@@ -2,7 +2,7 @@ using FastEndpoints;
 
 namespace DROWeb.WebAPI.Endpoints.Auth.Failed;
 
-public class Failed : Endpoint<NoRequest, EmptyResponse>
+public class Failed : EndpointWithoutRequest
 {
     public override void Configure()
     {
@@ -11,7 +11,7 @@ public class Failed : Endpoint<NoRequest, EmptyResponse>
         Description(x => x.WithName("AuthFailed"));
     }
 
-    public override Task HandleAsync(NoRequest req, CancellationToken ct)
+    public override Task HandleAsync(CancellationToken ct)
     {
         return Send.NoContentAsync();
     }

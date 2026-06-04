@@ -3,7 +3,7 @@ using FastEndpoints;
 
 namespace DROWeb.WebAPI.Endpoints.GetVersion
 {
-    public class GetVersionEndpoint : Endpoint<GetVersionRequest, CreatePlayerResponse>
+    public class GetVersionEndpoint : EndpointWithoutRequest<CreatePlayerResponse>
     {
         public override void Configure()
         {
@@ -12,7 +12,7 @@ namespace DROWeb.WebAPI.Endpoints.GetVersion
             Description(x => x.WithName("GetVersion"));
         }
 
-        public override async Task HandleAsync(GetVersionRequest req, CancellationToken ct)
+        public override async Task HandleAsync(CancellationToken ct)
         {
             var response = new CreatePlayerResponse("1.0.0 ");
 
