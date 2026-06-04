@@ -129,4 +129,5 @@ jobs:
 
     - name: Deploy to k3s
       run: |
+        kubectl --kubeconfig=kubeconfig.yaml -n app set image deployment/droweb-backend app=ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
         kubectl set image deployment/droweb-deployment app=ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
