@@ -1,13 +1,11 @@
 using FastEndpoints;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace DROWeb.WebAPI.Endpoints.Auth.Home;
 
 public class HomePageEndpoint : EndpointWithoutRequest
 {
-    private readonly IWebHostEnvironment _env; 
-    
+    private readonly IWebHostEnvironment _env;
+
     public HomePageEndpoint(IWebHostEnvironment env)
     {
         _env = env;
@@ -23,16 +21,13 @@ public class HomePageEndpoint : EndpointWithoutRequest
     {
         var filePath = Path.Combine(_env.WebRootPath, "index.html");
 
-        var fileInfo = new FileInfo(filePath);
-
-        if (!fileInfo.Exists)
+        if (!File.Exists(filePath))
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        await Send.FileAsync(fileInfo, contentType: "text/html", cancellation: ct);
+        var html = await File.ReadAllTextAsync(filePath, ct);
+        Results.Content(html, "text/html; charset=utf-8");
     }
 }
-
-public record EmptyRequest;
