@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace DROWeb.WebAPI.Endpoints.Auth.Login;
 
-public class Login : EndpointWithoutRequest<NoContent>
+public class Login : EndpointWithoutRequest
 {
     public override void Configure()
     {
