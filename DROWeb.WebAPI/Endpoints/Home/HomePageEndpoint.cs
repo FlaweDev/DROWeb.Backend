@@ -27,7 +27,7 @@ public class HomePageEndpoint : EndpointWithoutRequest
             return;
         }
 
-        var html = await File.ReadAllTextAsync(filePath, ct);
-        await Send.StringAsync(html, contentType: "text/html", cancellation: ct);
+        HttpContext.Response.ContentType = "text/html; charset=utf-8";
+        await HttpContext.Response.SendFileAsync(filePath, ct);
     }
 }
