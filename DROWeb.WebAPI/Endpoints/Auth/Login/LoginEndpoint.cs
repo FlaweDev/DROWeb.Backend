@@ -15,7 +15,10 @@ public class Login : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await Send.ResultAsync(Results.Challenge(new AuthenticationProperties { RedirectUri = "/" }, new[] { "Discord" }));
+        // Используем HTTPS для redirect_uri по умолчанию
+        var redirectUri = "/";
+        var authProps = new AuthenticationProperties { RedirectUri = redirectUri };
+        await Send.ResultAsync(Results.Challenge(authProps, new[] { "Discord" }));
     }
 }
 
