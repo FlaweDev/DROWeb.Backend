@@ -58,14 +58,14 @@ namespace DROWeb.Auth.Providers
 
         protected virtual Task OnAccessDenied(AccessDeniedContext context)
         {
-            context.Response.Redirect(context.Request.Scheme + "://" + context.Request.Host);
+            context.Response.Redirect("/");
             context.HandleResponse();
             return Task.CompletedTask;
         }
 
         protected virtual Task OnRemoteFailure(RemoteFailureContext context)
         {
-            context.Response.Redirect(context.Request.Scheme + "://" + context.Request.Host + "/failed");
+            context.Response.Redirect("/failed");
             context.HandleResponse(); 
             return Task.CompletedTask;
         }
