@@ -1,6 +1,6 @@
 using FastEndpoints;
 
-namespace DROWeb.WebAPI.Endpoints.Auth.Home;
+namespace DROWeb.WebAPI.Endpoints.Pages.Home;
 
 public class HomePageEndpoint : EndpointWithoutRequest
 {
@@ -19,7 +19,7 @@ public class HomePageEndpoint : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var filePath = Path.Combine(_env.WebRootPath, "index.html");
+        var filePath = Path.Combine(_env.WebRootPath, "home.html");
 
         if (!File.Exists(filePath))
         {

@@ -24,7 +24,6 @@ public class UserAuthenticationService : INotificationHandler<UserAuthenticated>
 
         if (externalAuth == null)
         {
-            // Пользователь не найден - создаем нового
             user = new User
             {
                 Id = notification.UserId,
@@ -47,12 +46,10 @@ public class UserAuthenticationService : INotificationHandler<UserAuthenticated>
         }
         else
         {
-            // Пользователь найден - обновляем данные
             user = await _dbContext.Users
                 .Include(u => u.ExternalAuths)
                 .FirstAsync(u => u.Id == externalAuth.UserId, ct);
 
-            // Обновляем никнейм, если изменился
             if (user.Username != notification.Username)
             {
                 user.Username = notification.Username;

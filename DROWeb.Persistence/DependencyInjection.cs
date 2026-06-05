@@ -11,20 +11,33 @@ namespace DROWeb.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services,
             IConfiguration config)
         {
-            var connectionString = new NpgsqlConnectionStringBuilder
-            {
-                Host = config["DATABASE_HOST"],
-                Port = int.TryParse(config["DATABASE_PORT"], out var p) ? p : 5432,
-                Database = config["DATABASE_NAME"],
-                Username = config["DATABASE_USER"],
-                Password = config["DATABASE_PASSWORD"],
-                Pooling = true
-            }.ConnectionString;
+            var useSqlite = bool.TryParse(config["USE_SQLITE"], out var useSqliteValue) && useSqliteValue;
 
-            services.AddDbContext<UsersDbContext>(options =>
+            if (useSqlite)
             {
-                options.UseNpgsql(connectionString);
-            });
+                var connectionString = config["DbConnection"] ?? "Data Source=Players.db";
+                services.AddDbContext<UsersDbContext>(options =>
+                {
+                    options.UseSqlite(connectionString);
+                });
+            }
+            else
+            {
+                var connectionString = new NpgsqlConnectionStringBuilder
+                {
+                    Host = config["DATABASE_HOST"],
+                    Port = int.TryParse(config["DATABASE_PORT"], out var p) ? p : 5432,
+                    Database = config["DATABASE_NAME"],
+                    Username = config["DATABASE_USER"],
+                    Password = config["DATABASE_PASSWORD"],
+                    Pooling = true
+                }.ConnectionString;
+
+                services.AddDbContext<UsersDbContext>(options =>
+                {
+                    options.UseNpgsql(connectionString);
+                });
+            }
 
             services.AddScoped<IUsersDbContext>(provider =>
                 provider.GetRequiredService<UsersDbContext>());

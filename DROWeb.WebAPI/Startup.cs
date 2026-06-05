@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Options;
-using DROWeb.Persistence;
-using DROWeb.Application;
-using FastEndpoints;
+﻿using DROWeb.Application;
 using DROWeb.Auth;
+using DROWeb.Persistence;
+using FastEndpoints;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 
 public class Startup
 {
@@ -59,6 +60,7 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            app.UseHsts();
         }
         /*app.UseSwagger();
         app.UseSwaggerUI(config =>
@@ -77,6 +79,11 @@ public class Startup
         app.UseCors("AllowAll");
         app.UseStaticFiles(); // Статические файлы из wwwroot
 
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
         app.UseAuthentication();
         app.UseAuthorization();
 

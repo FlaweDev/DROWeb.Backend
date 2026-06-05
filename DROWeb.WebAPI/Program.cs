@@ -2,6 +2,10 @@ using DROWeb.Persistence;
 using FastEndpoints;
 
 var builder = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((hostingContext, config) =>
+    {
+        config.AddEnvFile(".env", optional: true);
+    })
     .ConfigureWebHostDefaults(webBuilder =>
     {
         webBuilder.UseStartup<Startup>()
