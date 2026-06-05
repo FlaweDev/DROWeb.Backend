@@ -82,8 +82,22 @@ public class Startup
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+            // Явно указываем, что мы за reverse proxy
+            ForwardLimit = null
         });
+
+        // Принудительно заменяем схему на https, если пришел заголовок X-Forwarded-Proto
+        app.Use((context, next) =>
+        {
+            var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(proto))
+            {
+                context.Request.Scheme = proto;
+            }
+            return next();
+        });
+
         app.UseAuthentication();
         app.UseAuthorization();
 

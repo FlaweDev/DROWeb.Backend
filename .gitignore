@@ -64,6 +64,8 @@ docker-compose*.override.yml
 *.sdf
 *.sqlite
 *.db
+*.db-shm
+*.db-wal
 
 # Environment variables
 .env
