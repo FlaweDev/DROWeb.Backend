@@ -1,7 +1,7 @@
 // Permission flags
 const Permission = {
     None: 0,
-    Play: 1,
+    GameAccess: 1,
     Audit: 2,
     Moderate: 4,
     ManageSession: 8,
@@ -13,7 +13,7 @@ const Permission = {
 
 // Get all permission names
 const PermissionNames = [
-    { key: 'Play', value: Permission.Play },
+    { key: 'GameAccess', value: Permission.GameAccess },
     { key: 'Audit', value: Permission.Audit },
     { key: 'Moderate', value: Permission.Moderate },
     { key: 'ManageSession', value: Permission.ManageSession },

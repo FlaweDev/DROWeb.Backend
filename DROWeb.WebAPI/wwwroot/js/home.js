@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Константы прав (соответствуют DROWeb.Domain.Models.Permission)
     const PERMISSIONS = {
-        PLAY: 1 << 0,
+        GAME_ACCESS: 1 << 0,
         MANAGE_PERMISSIONS: 1 << 30
     };
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
             adminPanelBtn.classList.remove('hidden');
         }
 
-        const hasPlayPermission = (data.permissions & PERMISSIONS.PLAY) !== 0;
+        const hasPlayPermission = (data.permissions & PERMISSIONS.GAME_ACCESS) !== 0;
         if (hasPlayPermission) {
             playBtn.classList.remove('hidden');
             playBtn.disabled = false;

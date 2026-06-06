@@ -73,9 +73,9 @@ namespace DROWeb.Auth.Providers
                 }
 
                 var permissionService = context.HttpContext.RequestServices.GetRequiredService<PermissionService>();
-                if (await permissionService.HasPermissionAsync(externalAuth.UserId, Permission.Play, context.HttpContext.RequestAborted))
+                if (await permissionService.HasPermissionAsync(externalAuth.UserId, Permission.GameAccess, context.HttpContext.RequestAborted))
                 {
-                    context.Identity.AddClaim(new Claim("CanPlay", "true"));
+                    context.Identity.AddClaim(new Claim("GameAccess", "true"));
                 }
                 if (await permissionService.HasPermissionAsync(externalAuth.UserId, Permission.ManagePermissions, context.HttpContext.RequestAborted))
                 {
