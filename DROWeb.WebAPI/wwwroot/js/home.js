@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function handleAdminPanel(e) {
         e.preventDefault();
-        window.location.href = '/control';
+        window.location.href = '/admin';
     }
 
     async function handleLogout(e) {
