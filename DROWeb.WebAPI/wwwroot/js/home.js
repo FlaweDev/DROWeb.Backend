@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function () {
     playBtn.addEventListener('click', handlePlay);
     logoutBtn.addEventListener('click', handleLogout);
 
+    // Константы прав (соответствуют DROWeb.Domain.Models.Permission)
+    const PERMISSIONS = {
+        PLAY: 1 << 0,
+        MANAGE_PERMISSIONS: 1 << 30
+    };
+
     async function checkStatus() {
         try {
             const response = await fetch('/api/auth/status', {
@@ -56,11 +62,21 @@ document.addEventListener('DOMContentLoaded', function () {
         userId.textContent = `ID: ${data.userId}`;
         userId.classList.remove('hidden');
 
-
-        if (data.isAdmin) {
+        const hasManagePermissions = (data.permissions & PERMISSIONS.MANAGE_PERMISSIONS) !== 0;
+        if (hasManagePermissions) {
             adminPanelBtn.classList.remove('hidden');
         }
-        playBtn.classList.remove('hidden');
+
+        const hasPlayPermission = (data.permissions & PERMISSIONS.PLAY) !== 0;
+        if (hasPlayPermission) {
+            playBtn.classList.remove('hidden');
+            playBtn.disabled = false;
+        } else {
+            playBtn.classList.remove('hidden');
+            playBtn.disabled = true;
+            playBtn.textContent = 'Нет доступа';
+        }
+
         logoutBtn.classList.remove('hidden');
     }
 
@@ -69,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return 'https://cdn.discordapp.com/embed/avatars/0.png';
         }
         try {
-            const response = await fetch(`/users/${userId}/avatar`, { credentials: 'include' });
+            const response = await fetch(`/api/users/${userId}/avatar`, { credentials: 'include' });
             const data = await response.json();
             return data.avatarUrl;
         } catch {
@@ -96,5 +112,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.location.href = '/';
     }
-
 });

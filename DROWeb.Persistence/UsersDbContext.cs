@@ -18,7 +18,7 @@ public class UsersDbContext : DbContext, IUsersDbContext
         {
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.IsAdmin).HasDefaultValue(false);
+            entity.Property(u => u.Permissions).HasDefaultValue(Permission.None);
             entity.Property(u => u.CreatedAt);
         });
 

@@ -12,6 +12,7 @@ namespace DROWeb.Application
             //services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<UserAuthenticationService>();
             services.AddScoped<IAvatarService, AvatarService>();
+            services.AddScoped<PermissionService>();
 
             services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 

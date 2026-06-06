@@ -1,7 +1,9 @@
 ﻿using AspNet.Security.OAuth.Discord;
 using DROWeb.Application.Interfaces;
+using DROWeb.Application.Services;
 using DROWeb.Auth.Interfaces;
 using DROWeb.Domain.Events;
+using DROWeb.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -23,6 +25,7 @@ namespace DROWeb.Auth.Providers
 {
     public class DiscordProvider : OAuthAuthProvider<DiscordAuthenticationOptions>
     {
+        
         protected override void ConfigureProvider(DiscordAuthenticationOptions options, IConfiguration config)
         {
             options.ClientId = config["CLIENT_ID"] ?? throw new InvalidOperationException("Discord ClientId is missing.");
@@ -63,18 +66,16 @@ namespace DROWeb.Auth.Providers
             {
                 context.Identity.AddClaim(new Claim("AppUserId", externalAuth.UserId.ToString()));
 
-                // Обновляем avatar hash если он изменился
                 if (avatarHash != null && externalAuth.AvatarHash != avatarHash)
                 {
                     externalAuth.AvatarHash = avatarHash;
                     await dbContext.SaveChangesAsync(context.HttpContext.RequestAborted);
                 }
 
-                // Добавляем claim IsAdmin если пользователь является администратором
-                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == externalAuth.UserId, context.HttpContext.RequestAborted);
-                if (user?.IsAdmin == true)
+                var permissionService = context.HttpContext.RequestServices.GetRequiredService<PermissionService>();
+                if (await permissionService.HasPermissionAsync(externalAuth.UserId, Permission.Play, context.HttpContext.RequestAborted))
                 {
-                    context.Identity.AddClaim(new Claim("IsAdmin", "true"));
+                    context.Identity.AddClaim(new Claim("CanPlay", "true"));
                 }
             }
         }

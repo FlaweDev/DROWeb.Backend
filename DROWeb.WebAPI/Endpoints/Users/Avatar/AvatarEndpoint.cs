@@ -18,7 +18,7 @@ public class AvatarEndpoint : Endpoint<AvatarRequest, AvatarResponse>
 
     public override void Configure()
     {
-        Get("/users/{Id}/avatar");
+        Get("/api/users/{Id}/avatar");
         AllowAnonymous();
         Description(x => x.WithName("GetUserAvatar"));
     }

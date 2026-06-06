@@ -28,14 +28,14 @@ public class Status : EndpointWithoutRequest<StatusResponse>
 
         if (!isAuthenticated)
         {
-            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty, false, string.Empty), ct);
+            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty, Permission.None), ct);
             return;
         }
 
         var userIdClaim = User.FindFirst("AppUserId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty, false, string.Empty), ct);
+            await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty, Permission.None), ct);
             return;
         }
 
@@ -43,9 +43,9 @@ public class Status : EndpointWithoutRequest<StatusResponse>
     .Include(u => u.ExternalAuths)
     .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        await Send.OkAsync(new StatusResponse(true, user?.Id ?? Guid.Empty, user?.Username ?? string.Empty, user?.IsAdmin ?? false, user?.ExternalAuths?.FirstOrDefault()?.AvatarHash ?? ""), ct);
+        await Send.OkAsync(new StatusResponse(true, userId, user?.Username ?? string.Empty, user?.Permissions ?? Permission.None), ct);
     }
 }
 
 public record NoRequest;
-public record StatusResponse(bool IsAuthenticated, Guid UserId, string Username, bool IsAdmin, string AvatarHash);
+public record StatusResponse(bool IsAuthenticated, Guid UserId, string Username, Permission Permissions);
