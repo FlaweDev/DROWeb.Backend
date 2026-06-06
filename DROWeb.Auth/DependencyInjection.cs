@@ -34,6 +34,7 @@ public static class DependencyInjection
             .AddCookie(options =>
             {
                 options.Cookie.IsEssential = true;
+                options.Cookie.SameSite = SameSiteMode.Strict;
                 //options.LoginPath = "/api/auth/login";
                 //options.LogoutPath = "/api/auth/logout";
             })
