@@ -17,6 +17,7 @@ public class AdminUsersEndpoint : EndpointWithoutRequest<AdminUserResponse[]>
     public override void Configure()
     {
         Get("/api/admin/users");
+        Claims("Admin");
         Description(x => x.WithName("AdminListUsers"));
     }
 

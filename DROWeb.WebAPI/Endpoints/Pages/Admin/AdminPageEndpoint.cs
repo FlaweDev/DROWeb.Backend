@@ -14,7 +14,7 @@ public class AdminPageEndpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Get("/admin");
-        AllowAnonymous();
+        Claims("Admin");
     }
 
     public override async Task HandleAsync(CancellationToken ct)

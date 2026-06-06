@@ -77,6 +77,10 @@ namespace DROWeb.Auth.Providers
                 {
                     context.Identity.AddClaim(new Claim("CanPlay", "true"));
                 }
+                if (await permissionService.HasPermissionAsync(externalAuth.UserId, Permission.ManagePermissions, context.HttpContext.RequestAborted))
+                {
+                    context.Identity.AddClaim(new Claim("Admin", "true"));
+                }
             }
         }
 

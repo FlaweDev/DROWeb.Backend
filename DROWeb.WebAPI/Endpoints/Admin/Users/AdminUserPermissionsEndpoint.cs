@@ -17,6 +17,7 @@ public class AdminUserPermissionsEndpoint : Endpoint<AdminUpdatePermissionsReque
     public override void Configure()
     {
         Put("/api/admin/users/{Id}/permissions");
+        Claims("Admin");
         Description(x => x.WithName("AdminUpdatePermissions"));
     }
 
