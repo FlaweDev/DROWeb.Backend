@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </td>
                     <td>
-                        <button class="save-btn" data-user-id="${user.id}">Сохранено</button>
+                        <button class="save-btn" disabled=true data-user-id="${user.id}">Сохранено</button>
                     </td>
                 `;
 
@@ -116,18 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // Add event listeners for checkboxes
-            document.querySelectorAll('.permissions-panel-content').forEach(content => {
-                content.addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        const wrapper = content.closest('.permissions-wrapper');
-                        const trigger = wrapper.querySelector('.permissions-trigger');
-                        const btn = wrapper.querySelector('.save-btn');
-                        if (btn) btn.disabled = false;
-                    }
-                });
-            });
-
             // Add event listeners for save buttons
             document.querySelectorAll('.save-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
@@ -135,6 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const userId = tr.dataset.userId;
                     await savePermissions(userId);
                 });
+            });
+
+            // Add event listener for checkboxes with event delegation on usersBody
+            usersBody.addEventListener('change', (e) => {
+                const checkbox = e.target.closest('input[type="checkbox"]');
+                if (checkbox) {
+                    const tr = checkbox.closest('tr');
+                    const btn = tr?.querySelector('.save-btn');
+                    if (btn) btn.disabled = false;
+                }
             });
 
         } catch (error) {
@@ -214,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update button state
             btn.textContent = 'Сохранено';
             btn.disabled = true;
-            btn.classList.remove('enabled');
 
             // Close panel
             wrapper.querySelector('.permissions-panel').classList.remove('open');
@@ -224,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showSaveStatus(`Ошибка: ${error.message}`, false);
             btn.disabled = false;
             btn.textContent = 'Сохранить';
-            btn.classList.add('enabled');
         }
     }
 
