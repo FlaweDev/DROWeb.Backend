@@ -1,16 +1,23 @@
 using DROWeb.Application.Interfaces;
 using DROWeb.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace DROWeb.Application.Services;
 
 public class PermissionService
 {
     private readonly IUsersDbContext _dbContext;
+    private readonly IMemoryCache _cache;
+    private readonly IConfiguration _configuration;
 
-    public PermissionService(IUsersDbContext dbContext)
+    public PermissionService(IUsersDbContext dbContext, IMemoryCache cache, IConfiguration configuration)
     {
         _dbContext = dbContext;
+        _cache = cache;
+        _configuration = configuration;
     }
 
     public async Task<User?> GetUserByIdAsync(Guid userId, CancellationToken ct = default)
@@ -28,6 +35,9 @@ public class PermissionService
 
         user.Permissions |= permission;
         await _dbContext.SaveChangesAsync(ct);
+
+        MarkerUserSession(userId);
+
         return true;
     }
 
@@ -39,6 +49,9 @@ public class PermissionService
 
         user.Permissions &= ~permission;
         await _dbContext.SaveChangesAsync(ct);
+
+        MarkerUserSession(userId);
+
         return true;
     }
 
@@ -50,6 +63,9 @@ public class PermissionService
 
         user.Permissions = permissions;
         await _dbContext.SaveChangesAsync(ct);
+
+        MarkerUserSession(userId);
+
         return true;
     }
 
@@ -81,5 +97,17 @@ public class PermissionService
             .FirstOrDefaultAsync(ct);
 
         return user != null && (user & permissions) == permissions;
+    }
+
+    private void MarkerUserSession(Guid userId)
+    {
+        string blacklistKey = $"revoked_session_{userId}";
+
+        if (!double.TryParse(_configuration["IdentitySettings:CookieExpireTimeSpanInHours"], out var cookieExpireTime))
+            throw new InvalidOperationException(
+                "Критическая ошибка конфигурации: Значение 'IdentitySettings:CookieExpireTimeSpanInHours' не найдено или не является валидным числом типа double."
+            );
+
+        _cache.Set(blacklistKey, true, TimeSpan.FromHours(cookieExpireTime));
     }
 }

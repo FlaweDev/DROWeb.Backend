@@ -25,8 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function checkStatus() {
         try {
             const response = await fetch('/api/auth/status', {
-                method: 'GET',
-                credentials: 'include'
+                method: 'GET'
             });
 
             if (!response.ok) {
@@ -85,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return 'https://cdn.discordapp.com/embed/avatars/0.png';
         }
         try {
-            const response = await fetch(`/api/users/${userId}/avatar`, { credentials: 'include' });
+            const response = await fetch(`/api/users/${userId}/avatar`);
             const data = await response.json();
             return data.avatarUrl;
         } catch {
@@ -103,8 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
+                method: 'POST'
             });
         } catch (error) {
             console.error('Ошибка при выходе:', error);

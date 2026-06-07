@@ -32,7 +32,7 @@ public class Status : EndpointWithoutRequest<StatusResponse>
             return;
         }
 
-        var userIdClaim = User.FindFirst("AppUserId");
+        var userIdClaim = User.FindFirst("UserId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
             await Send.OkAsync(new StatusResponse(false, Guid.Empty, string.Empty, Permission.None), ct);

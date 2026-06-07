@@ -64,7 +64,7 @@ namespace DROWeb.Auth.Providers
 
             if (externalAuth != null)
             {
-                context.Identity.AddClaim(new Claim("AppUserId", externalAuth.UserId.ToString()));
+                context.Identity.AddClaim(new Claim("UserId", externalAuth.UserId.ToString()));
 
                 if (avatarHash != null && externalAuth.AvatarHash != avatarHash)
                 {

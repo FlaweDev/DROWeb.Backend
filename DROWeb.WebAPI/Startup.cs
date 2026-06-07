@@ -13,6 +13,8 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddMemoryCache(); // TODO: replace to Redis
+
         services.AddFastEndpoints();
         services.AddOpenApi();
 
@@ -99,8 +101,8 @@ public class Startup
         });
 
         app.UseAuthentication();
+        app.UseTokenIntrospection();
         app.UseAuthorization();
-
         app.UseWebSockets();
         app.UseEndpoints(endpoints =>
         {
