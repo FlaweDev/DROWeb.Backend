@@ -2,26 +2,45 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Npgsql;
 
 namespace DROWeb.Persistence
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddPersistence(this IServiceCollection services, 
-            IConfiguration configuration)
+        public static IServiceCollection AddPersistence(this IServiceCollection services,
+            IConfiguration config)
         {
-            var connectionString = configuration["DbConnection"];
+            var useSqlite = bool.TryParse(config["USE_SQLITE"], out var useSqliteValue) && useSqliteValue;
 
-            services.AddDbContext<PlayersDbContext>(options =>
+            if (useSqlite)
             {
-                options.UseSqlite(connectionString);
-            });
+                var connectionString = config["DbConnection"] ?? "Data Source=Players.db";
+                services.AddDbContext<UsersDbContext>(options =>
+                {
+                    options.UseSqlite(connectionString);
+                });
+            }
+            else
+            {
+                var connectionString = new NpgsqlConnectionStringBuilder
+                {
+                    Host = config["DATABASE_HOST"],
+                    Port = int.TryParse(config["DATABASE_PORT"], out var p) ? p : 5432,
+                    Database = config["DATABASE_NAME"],
+                    Username = config["DATABASE_USER"],
+                    Password = config["DATABASE_PASSWORD"],
+                    Pooling = true
+                }.ConnectionString;
 
-            services.AddScoped<IPlayersDbContext>(provider =>
-                provider.GetService<PlayersDbContext>());
+                services.AddDbContext<UsersDbContext>(options =>
+                {
+                    options.UseNpgsql(connectionString);
+                });
+            }
+
+            services.AddScoped<IUsersDbContext>(provider =>
+                provider.GetRequiredService<UsersDbContext>());
 
             return services;
         }

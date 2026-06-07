@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель</title>
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-hover: #4752c4;
+            --bg: #36393f;
+            --card-bg: #2f3136;
+            --text: #dcddde;
+            --text-secondary: #72767d;
+            --input-bg: #202225;
+            --border: #202225;
+            --success: #43b581;
+            --success-hover: #369e6d;
+            --admin: #faa61a;
+            --admin-hover: #d48a0e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+
+        /* Search Form */
+        .search-panel {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Table */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .table-content {
+            overflow-x: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-id-cell {
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .provider-cell {
+            align-items: center;
+            vertical-align: middle;
+        }
+
+        .provider-discord {
+            color: var(--primary);
+        }
+
+        .provider-google {
+            color: #db4437;
+        }
+
+        /* Permissions dropdown/panel */
+        .permissions-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .permissions-trigger {
+            padding: 8px 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .permissions-trigger:hover {
+            border-color: var(--primary);
+        }
+
+        .permissions-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            width: 220px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .permissions-panel.open {
+            display: block;
+        }
+
+        .permissions-panel-content {
+            padding: 8px;
+        }
+
+        .permission-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .permission-checkbox:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .permission-checkbox input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .permission-checkbox span {
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .permissions-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            margin: 0;
+        }
+
+        /* Save button */
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .save-btn.enabled:hover {
+            background-color: var(--success-hover);
+        }
+
+        .save-btn:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .save-status {
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .save-status.success {
+            color: var(--success);
+        }
+
+        .save-status.error {
+            color: #f04747;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">&larr; Назад на главную</a>
+        <h1>Панель управления пользователями</h1>
+
+        <!-- Search Form -->
+        <div class="search-panel">
+            <div class="form-group">
+                <label for="searchInput">Поиск по ID пользователя или ProviderId</label>
+                <input type="text" id="searchInput" placeholder="Введите ID или ProviderId...">
+            </div>
+            <div class="form-group">
+                <label for="providerSelect">Провайдер</label>
+                <select id="providerSelect">
+                    <option value="">Все провайдеры</option>
+                    <option value="Discord">Discord</option>
+                    <option value="Google">Google</option>
+                </select>
+            </div>
+            <button class="search-btn" id="searchBtn">Найти</button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <span class="table-title">Пользователи</span>
+                <span id="usersCount" style="color: var(--text-secondary); font-size: 13px;">0 пользователей</span>
+            </div>
+            <div class="table-content">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID пользователя</th>
+                            <th>Username</th>
+                            <th>Provider</th>
+                            <th>ProviderId</th>
+                            <th>Permissions</th>
+                            <th>Сохранено</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-secondary);">Нажмите "Найти" для просмотра результатов</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="saveStatus" class="save-status"></div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/api.js"></script>
+</body>
+</html>

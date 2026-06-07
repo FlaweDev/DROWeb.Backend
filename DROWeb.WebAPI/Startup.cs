@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using DROWeb.Application;
+using DROWeb.Auth;
 using DROWeb.Persistence;
-using DROWeb.Application;
 using FastEndpoints;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 
 public class Startup
 {
@@ -11,11 +13,14 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddMemoryCache(); // TODO: replace to Redis
+
         services.AddFastEndpoints();
         services.AddOpenApi();
 
         services.AddApplication();
         services.AddPersistence(Configuration);
+        services.AddAuth(Configuration);
         services.AddControllers();
 
         services.AddCors(options =>
@@ -57,6 +62,7 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            app.UseHsts();
         }
         /*app.UseSwagger();
         app.UseSwaggerUI(config =>
@@ -73,11 +79,31 @@ public class Startup
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
-        /*app.UseAuthentication();
+        app.UseStaticFiles(); // Статические файлы из wwwroot
+
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+            // Явно указываем, что мы за reverse proxy
+            ForwardLimit = null
+        });
+
+        // Принудительно заменяем схему на https, если пришел заголовок X-Forwarded-Proto
+        app.Use((context, next) =>
+        {
+            var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(proto))
+            {
+                context.Request.Scheme = proto;
+            }
+            return next();
+        });
+
+        app.UseAuthentication();
+        app.UseTokenIntrospection();
         app.UseAuthorization();
-        app.UseApiVersioning();*/
-
-
+        app.UseWebSockets();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapFastEndpoints();

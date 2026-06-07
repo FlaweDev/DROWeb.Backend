@@ -7,6 +7,7 @@
     <Project Path="DROWeb.Domain/DROWeb.Domain.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
+    <Project Path="DROWeb.Auth/DROWeb.Auth.csproj" Id="cb46be97-8afc-4503-bfb6-21c3a9e3d31d" />
     <Project Path="DROWeb.Persistence/DROWeb.Persistence.csproj" />
   </Folder>
   <Folder Name="/Presentation/">

@@ -1,37 +1,74 @@
 name: CI/CD Pipeline
 
 on:
-  # push:
-  #  branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches: 
+      - main
+      - develop
+  workflow_dispatch:
 
 jobs:
-  # --- ИНТЕГРАЦИЯ: Собираем Docker-образ и UPM-пакет ---
-  build-and-pack:
+  release:
+    name: Semantic Release
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write       
+      packages: write       
+      issues: write         
+      pull-requests: write  
+    
     outputs:
-      version: ${{ steps.bump_version.outputs.new_version }}
+      published: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+      docker_alias: ${{ steps.vars.outputs.docker_alias }}
+      owner_lower: ${{ steps.vars.outputs.owner_lower }}
+      
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-    # Динамически вычисляем автора репозитория и версию
-    - name: Bump package version and inject scope
-      id: bump_version
+    - name: Run Semantic Release
+      id: semantic
+      uses: cycjimmy/semantic-release-action@v4
+      with:
+        extra_plugins: |
+          @semantic-release/changelog
+          @semantic-release/git
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Determine Docker Alias & Lowercase Owner
+      if: steps.semantic.outputs.new_release_published == 'true'
+      id: vars
       run: |
-        VERSION="1.0.${{ github.run_number }}"
+        if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "docker_alias=latest" >> $GITHUB_OUTPUT
+        else
+          echo "docker_alias=dev" >> $GITHUB_OUTPUT
+        fi
         
-        echo "new_version=$VERSION" >> $GITHUB_OUTPUT
-        
-        # package.json
-        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" DROWeb.UnitySDK/package.json
-        
-        echo "Лог измененного package.json для проверки:"
-        cat DROWeb.UnitySDK/package.json
+        OWNER_LOWER="${GITHUB_REPOSITORY_OWNER,,}"
+        echo "owner_lower=$OWNER_LOWER" >> $GITHUB_OUTPUT
+
+  build-and-pack:
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.published == 'true'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -52,46 +89,44 @@ jobs:
       with:
         seed: 'random-seed'
         directory: 'DROWeb.UnitySDK'
-
-    # Публикуем UPM-пакет в NPM Реестр
+        
     - name: Publish UPM Package
       run: |
         cd DROWeb.UnitySDK
+        sed -i "s/\"version\": \".*\"/\"version\": \"${{ needs.release.outputs.version }}\"/g" package.json
         echo "//${{ vars.REGISTRY_HOST }}/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" > .npmrc
         npm publish --registry=https://${{ vars.REGISTRY_HOST }}/
+        
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-    # 4. Собираем Docker-образ и заливаем в ваш Docker Hub (или GitHub Registry)
-    # - name: log in to docker hub
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.docker_username }}
-    #     password: ${{ secrets.docker_password }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./DROWeb.WebAPI/Dockerfile
+        push: true
+        tags: |
+          ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}
+          ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.docker_alias }}
 
-    # - name: build and push docker image
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #     context: .
-    #     file: ./droweb.webapi/dockerfile
-    #     push: true
-    #     tags: |
-    #       droweb-dev/droweb-backend:${{ github.run_number }}
-    #       droweb-dev/droweb-backend:latest
+    - name: Decode Kubeconfig
+      id: kubeconfig_decoder
+      run: |
+        echo "decoded_config<<EOF" >> $GITHUB_OUTPUT
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
-  # --- РАЗВЕРТЫВАНИЕ: Отправляем бэкенд в Kubernetes на ваш сервер ---
-  # deploy-to-k8s:
-  #   needs: build-and-pack
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
+    - name: Setup Kubernetes Context
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ steps.kubeconfig_decoder.outputs.decoded_config }}
 
-  #   - name: Setup Kubectl
-  #     uses: azure/k8s-set-context@v3
-  #     with:
-  #       method: kubeconfig
-  #       kubeconfig: ${{ secrets.KUBE_CONFIG }} # Секретный токен доступа к вашему серверу K8s
-
-  #   - name: Deploy to Kubernetes
-  #     run: |
-  #       # Обновляем образ в вашем K8s кластере на свежую версию
-  #       kubectl set image deployment/my-backend-deployment my-backend=your-docker-username/my-backend:${{ github.run_number }}
+    - name: Deploy to k3s
+      run: |
+        kubectl -n app set image deployment/droweb-backend app=ghcr.io/${{ needs.release.outputs.owner_lower }}/droweb-backend:${{ needs.release.outputs.version }}

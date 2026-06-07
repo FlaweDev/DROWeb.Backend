@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -9,8 +8,13 @@
 	<OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
 	<OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\obj\openapi\</OpenApiDocumentsDirectory>
   </PropertyGroup>
-
+	
   <ItemGroup>
+    <Content Update="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <PackageReference Include="Dotenv.Extensions.Microsoft.Configuration" Version="3.1.0" />
     <PackageReference Include="FastEndpoints" Version="8.1.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
@@ -23,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DROWeb.Application\DROWeb.Application.csproj" />
+    <ProjectReference Include="..\DROWeb.Auth\DROWeb.Auth.csproj" />
     <ProjectReference Include="..\DROWeb.Persistence\DROWeb.Persistence.csproj" />
   </ItemGroup>
 

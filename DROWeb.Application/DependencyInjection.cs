@@ -1,6 +1,7 @@
 ﻿using DROWeb.Application.Interfaces;
 using DROWeb.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
+using MediatR;
 
 namespace DROWeb.Application
 {
@@ -8,9 +9,12 @@ namespace DROWeb.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddScoped<IPlayerService, PlayerService>();
+            //services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<UserAuthenticationService>();
+            services.AddScoped<IAvatarService, AvatarService>();
+            services.AddScoped<PermissionService>();
 
-            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
             return services;
         }
